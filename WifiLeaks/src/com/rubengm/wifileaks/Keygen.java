@@ -31,7 +31,7 @@ if (isset($_POST['essid']) && isset($_POST['bssid']))
 	Sacado de: http://kz.ath.cx/wlan/codigo.txt
 
 	 */
-	
+
 	public static String INCOMPATIBLE = "Incompatible";
 	private static String calc(String essid, String bssid) {
 		if(validEssid(essid)) {
@@ -44,7 +44,7 @@ if (isset($_POST['essid']) && isset($_POST['bssid']))
 			return INCOMPATIBLE;
 		}
 	}
-	
+
 	private static boolean validEssid(String essid) {
 		if(essid.toUpperCase().contains("WLAN_") || essid.toUpperCase().contains("JAZZTEL_")) {
 			essid = essid.replace("WLAN_", "").replace("JAZZTEL_", "");
@@ -69,24 +69,25 @@ if (isset($_POST['essid']) && isset($_POST['bssid']))
 	}
 
 	private static String md5(String s) {
+		StringBuffer hexString = new StringBuffer();
 		try {
-			MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+			MessageDigest digest = MessageDigest.getInstance("MD5"); 
 			digest.update(s.getBytes());
+
 			byte messageDigest[] = digest.digest();
+			int u=0;
 
-			StringBuffer hexString = new StringBuffer();
-			for (int i=0; i<messageDigest.length; i++) {
-				String tmp = Integer.toHexString(0xFF & messageDigest[i]);
-				if(tmp.length() == 0) {
-					tmp = "0" + tmp;
+			for (int i=0; i<messageDigest.length; i++){	
+				u = messageDigest[i] & 255;
+				if (u < 16) {
+					hexString.append("0" + Integer.toHexString(u));
+				} else {
+					hexString.append(Integer.toHexString(u));
 				}
-				hexString.append(tmp);
 			}
-			return hexString.toString();
-
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
-		return "";
-	}
+		return hexString.toString();
+	}	
 }
