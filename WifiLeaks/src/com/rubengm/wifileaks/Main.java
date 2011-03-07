@@ -31,7 +31,7 @@ public class Main extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setListAdapter(wa);
-		comienzaRefresco();
+		//comienzaRefresco();
 	}
 
 	@Override
@@ -53,6 +53,11 @@ public class Main extends ListActivity {
 			refrescame.continua = false;
 		refrescame = null;
 	}
+	
+	/**
+	 * Lo he dejado de llamar temporalmente hasta que lo hagamos desactivable ;P
+	 */
+	@SuppressWarnings("unused")
 	private void comienzaRefresco() {
 		if(refrescame == null) {
 			refrescame = new Refrescame();
@@ -78,7 +83,7 @@ public class Main extends ListActivity {
 
 	@Override
 	protected void onResume() {
-		comienzaRefresco();
+		//comienzaRefresco();
 		super.onResume();
 	}
 
