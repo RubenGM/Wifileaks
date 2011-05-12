@@ -31,7 +31,7 @@ public class Main extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setListAdapter(wa);
-		//comienzaRefresco();
+		comienzaRefresco();
 	}
 
 	@Override

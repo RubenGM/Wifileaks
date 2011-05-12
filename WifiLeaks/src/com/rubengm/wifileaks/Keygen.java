@@ -101,19 +101,25 @@ if (isset($_POST['essid']) && isset($_POST['bssid']))
 	}
 
 	private static String md5(String s) {
-		try {
-			MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
-			digest.update(s.getBytes());
-			byte messageDigest[] = digest.digest();
+		 StringBuffer hexString = new StringBuffer();
+			try {
+				MessageDigest digest = MessageDigest.getInstance("MD5"); 
+				digest.update(s.getBytes());
 
-			StringBuffer hexString = new StringBuffer();
-			for (int i=0; i<messageDigest.length; i++)
-				hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
+				byte messageDigest[] = digest.digest();
+				int u=0;
+				
+				for (int i=0; i<messageDigest.length; i++){	
+					u = messageDigest[i] & 255;
+					if (u < 16) {
+						hexString.append("0" + Integer.toHexString(u));
+					} else {
+						hexString.append(Integer.toHexString(u));
+					}
+				}
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			}
 			return hexString.toString();
-
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-		return "";
-	}
+		}		
 }
