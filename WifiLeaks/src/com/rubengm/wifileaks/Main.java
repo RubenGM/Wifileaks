@@ -28,6 +28,7 @@ public class Main extends ListActivity {
 	WifiAdapter wa = new WifiAdapter();
 	Refrescame refrescame;
 	private boolean manualReload = true;
+	private long timeLastNag = 0;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -123,7 +124,6 @@ public class Main extends ListActivity {
 			results = tmpresults;
 			manualReload = false;
 		} else {
-			long time = System.currentTimeMillis();
 			for(ScanResult s : tmpresults) {
 				boolean found = false;
 				int i = 0;
@@ -138,7 +138,10 @@ public class Main extends ListActivity {
 		}
 		((WifiAdapter)getListAdapter()).notifyDataSetChanged();
 		if(results.size() == 0) {
-			Toast.makeText(Main.this, "Sin resultados. ÀTienes la wifi activa?", Toast.LENGTH_LONG).show();
+			if(System.currentTimeMillis() - timeLastNag > 10000) {
+				Toast.makeText(Main.this, "Sin resultados. ÀTienes la wifi activa?", Toast.LENGTH_LONG).show();
+				timeLastNag = System.currentTimeMillis();
+			}
 		} 
 	}
 
