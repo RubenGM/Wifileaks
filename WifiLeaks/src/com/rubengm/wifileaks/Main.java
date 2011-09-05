@@ -27,6 +27,7 @@ public class Main extends ListActivity {
 	List<ScanResult> results = new ArrayList<ScanResult>();
 	WifiAdapter wa = new WifiAdapter();
 	Refrescame refrescame;
+	private boolean manualReload = true;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -100,6 +101,7 @@ public class Main extends ListActivity {
 		switch(item.getItemId()) {
 		case 0:
 			refresca();
+			manualReload = true;
 			break;
 		}
 		return super.onOptionsItemSelected(item);
@@ -115,12 +117,29 @@ public class Main extends ListActivity {
 	private void refresca() {
 		WifiManager wifiMgr = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		wifiMgr.startScan();
-		results = wifiMgr.getScanResults();
-		if(results == null) results = new ArrayList<ScanResult>();
+		List<ScanResult> tmpresults = wifiMgr.getScanResults();
+		if(tmpresults == null) tmpresults = new ArrayList<ScanResult>();
+		if(manualReload) {
+			results = tmpresults;
+			manualReload = false;
+		} else {
+			long time = System.currentTimeMillis();
+			for(ScanResult s : tmpresults) {
+				boolean found = false;
+				int i = 0;
+				while(!found && i < results.size()) {
+					if(results.get(i).BSSID.equals(s.BSSID)) {
+						found = true;
+						results.get(i).level = s.level;
+					}
+					i++;
+				}
+			}
+		}
 		((WifiAdapter)getListAdapter()).notifyDataSetChanged();
 		if(results.size() == 0) {
 			Toast.makeText(Main.this, "Sin resultados. ÀTienes la wifi activa?", Toast.LENGTH_LONG).show();
-		}
+		} 
 	}
 
 	private class WifiAdapter extends BaseAdapter {
@@ -202,7 +221,7 @@ public class Main extends ListActivity {
 			while(continua) {
 				runOnUiThread(doRefresca);
 				try {
-					Thread.sleep(3000);
+					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					continua = false;
 				}
