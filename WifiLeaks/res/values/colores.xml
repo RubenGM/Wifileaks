@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="background">#000</color>
+	<color name="verde">#00e21a</color>
+	<color name="verde_fuerte">#039f15</color>
+	<color name="rojo">#e2001a</color>
+	<color name="rosado">#F3778F</color>
+	<color name="rosado_claro">#F6AABF</color>
+	<color name="rojo_fuerte">#9f0315</color>
+	<color name="click">#FFD700</color>
+</resources>

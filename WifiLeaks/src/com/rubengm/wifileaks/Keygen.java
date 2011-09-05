@@ -57,7 +57,8 @@ if (isset($_POST['essid']) && isset($_POST['bssid']))
 			essid = essid.toUpperCase();
 			String _ssid = mixSsids(essid, bssid);
 			String md5 = md5(_ssid);
-			return md5.substring(0, 20);
+			String clave = md5.substring(0, 20);
+			if (_ssid.length() == 32) {return clave;} else {return clave.toUpperCase();}
 		} else {
 			return INCOMPATIBLE;
 		}
@@ -81,7 +82,7 @@ if (isset($_POST['essid']) && isset($_POST['bssid']))
 	private static String cleanBssid(String bssid) {
 		return bssid.replace(":", "").trim().toUpperCase();
 	}
-	
+
 	private static String mixSsids(String essid, String bssid) {
 		if (bssid.contains("001FA4")) {
 			return mixSsids1(essid, bssid);
@@ -89,7 +90,7 @@ if (isset($_POST['essid']) && isset($_POST['bssid']))
 			return mixSsids2(essid, bssid);
 		}
 	}
-	
+
 	private static String mixSsids1(String essid, String bssid) {
 		essid = essid.toLowerCase();
 		bssid = bssid.toLowerCase();
@@ -101,25 +102,25 @@ if (isset($_POST['essid']) && isset($_POST['bssid']))
 	}
 
 	private static String md5(String s) {
-		 StringBuffer hexString = new StringBuffer();
-			try {
-				MessageDigest digest = MessageDigest.getInstance("MD5"); 
-				digest.update(s.getBytes());
+		StringBuffer hexString = new StringBuffer();
+		try {
+			MessageDigest digest = MessageDigest.getInstance("MD5"); 
+			digest.update(s.getBytes());
 
-				byte messageDigest[] = digest.digest();
-				int u=0;
-				
-				for (int i=0; i<messageDigest.length; i++){	
-					u = messageDigest[i] & 255;
-					if (u < 16) {
-						hexString.append("0" + Integer.toHexString(u));
-					} else {
-						hexString.append(Integer.toHexString(u));
-					}
+			byte messageDigest[] = digest.digest();
+			int u=0;
+
+			for (int i=0; i<messageDigest.length; i++){	
+				u = messageDigest[i] & 255;
+				if (u < 16) {
+					hexString.append("0" + Integer.toHexString(u));
+				} else {
+					hexString.append(Integer.toHexString(u));
 				}
-			} catch (NoSuchAlgorithmException e) {
-				e.printStackTrace();
 			}
-			return hexString.toString();
-		}		
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return hexString.toString();
+	}
 }

@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ public class Main extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setListAdapter(wa);
 		comienzaRefresco();
+		getListView().setDividerHeight(0);
 	}
 
 	@Override
@@ -47,17 +49,16 @@ public class Main extends ListActivity {
 		}
 		super.onListItemClick(l, v, position, id);
 	}
-	
+
 	private void paraRefresco() {
 		if(refrescame != null)
 			refrescame.continua = false;
 		refrescame = null;
 	}
-	
+
 	/**
 	 * Lo he dejado de llamar temporalmente hasta que lo hagamos desactivable ;P
 	 */
-	@SuppressWarnings("unused")
 	private void comienzaRefresco() {
 		if(refrescame == null) {
 			refrescame = new Refrescame();
@@ -103,14 +104,14 @@ public class Main extends ListActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	Runnable doRefresca = new Runnable() {
 		@Override
 		public void run() {
 			refresca();
 		}
 	};
-	
+
 	private void refresca() {
 		WifiManager wifiMgr = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		wifiMgr.startScan();
@@ -148,21 +149,31 @@ public class Main extends ListActivity {
 			} else {
 				v = View.inflate(Main.this, R.layout.row_wifi, null);
 			}
+			String key = Keygen.calc(item);
+			if(Keygen.INCOMPATIBLE.equals(key)) {
+				getBackground(v).setBackgroundResource(R.drawable.background_row_ko);
+			} else {
+				getBackground(v).setBackgroundResource(R.drawable.background_row);
+			}
 			getSsid(v).setText(item.SSID + " :: " + item.level + " dBm");
 			getBssid(v).setText(item.BSSID);
-			getKey(v).setText(Keygen.calc(item));
+			getKey(v).setText(key);
 			getCapabilities(v).setText(item.capabilities);
 			getVal(v).setProgress(calcProgress(item.level));
 			return v;
 		}
-		
+
 		private int calcProgress(int level) {
 			int progress = 100 + level;
 			if(progress < 0) progress = 0;
 			if(progress > 100) progress = 100;
 			return progress;
 		}
-		
+
+		private LinearLayout getBackground(View v) {
+			return (LinearLayout)v.findViewById(R.id.linearRow);
+		}
+
 		private ProgressBar getVal(View v) {
 			return (ProgressBar)v.findViewById(R.id.val);
 		}
@@ -183,7 +194,7 @@ public class Main extends ListActivity {
 			return (TextView)v.findViewById(R.id.tvKey);
 		}
 	}
-	
+
 	private class Refrescame extends AsyncTask<Void, Void, Void> {
 		public boolean continua = true;
 		@Override
@@ -198,6 +209,6 @@ public class Main extends ListActivity {
 			}
 			return null;
 		}
-		
+
 	}
 }
