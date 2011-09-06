@@ -51,6 +51,7 @@ if (isset($_POST['essid']) && isset($_POST['bssid']))
 	 */
 
 	public static String INCOMPATIBLE = "Incompatible";
+	public static String OPEN = "Open";
 	private static String calc(String essid, String bssid) {
 		if(validEssid(essid)) {
 			bssid = cleanBssid(bssid);
@@ -72,7 +73,9 @@ if (isset($_POST['essid']) && isset($_POST['bssid']))
 	}
 
 	public static String calc(ScanResult sr) {
-		return calc(sr.SSID, sr.BSSID);
+		if(sr.capabilities.contains("WPA") || sr.capabilities.contains("WEP") || sr.capabilities.contains("IBSS"))
+			return calc(sr.SSID, sr.BSSID);
+		else return OPEN;
 	}
 
 	private static String right(String string, int chars) {

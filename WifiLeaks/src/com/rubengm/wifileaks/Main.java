@@ -1,17 +1,20 @@
 package com.rubengm.wifileaks;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.ClipboardManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,13 +46,90 @@ public class Main extends ListActivity {
 		String clave = Keygen.calc(wa.getItem(position));
 		if(clave.equals(Keygen.INCOMPATIBLE)) {
 			//TODO: ÀHacer algo?
+		} else if(clave.equals(Keygen.OPEN)) {
+			conecta(results.get(position));
 		} else {
 			ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 			cm.setText(clave);
 			Toast.makeText(Main.this, "Clave copiada en el portapapeles", Toast.LENGTH_SHORT).show();
-			startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+			conecta(results.get(position));
 		}
 		super.onListItemClick(l, v, position, id);
+	}
+
+	private void conecta(ScanResult r) {
+		new Connect().execute(r);
+	}
+
+	private class Connect extends AsyncTask<ScanResult, Void, Void> {
+		ProgressDialog pd;
+		@Override
+		protected Void doInBackground(ScanResult... params) {
+			ScanResult r = params[0];
+
+			setPdMessage("Reading wifi config");
+
+			WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+			WifiConfiguration wc = new WifiConfiguration();
+			wc.SSID = "\"" + r.SSID + "\"";
+
+			if(r.capabilities.contains("WPA")) {
+				wc.preSharedKey = "\"" + Keygen.calc(r) + "\"";
+				wc.status = WifiConfiguration.Status.ENABLED;
+				wc.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+				wc.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+				wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+				wc.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+				wc.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+				wc.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+			} else if(r.capabilities.contains("WEP")) {
+				//Falta hacer WEP
+			} else { //Red abierta
+				//Falta comprobar
+				wc.status = WifiConfiguration.Status.ENABLED;
+			}
+			// connect to and enable the connection
+			setPdMessage("Adding network");
+			int netId = wifiManager.addNetwork(wc);
+			setPdMessage("Network added with ID: " + netId);
+			wifiManager.enableNetwork(netId, true);
+			wifiManager.setWifiEnabled(true);
+			try {
+				Thread.sleep(750);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			if(pd != null) {
+				pd.dismiss();
+			}
+			super.onPostExecute(result);
+		}
+
+		protected void setPdMessage(final String msg) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if(pd != null) {
+						pd.setMessage(msg);
+					}
+				}});
+			Log.i("WifiConnect", msg);
+		}
+
+		@Override
+		protected void onPreExecute() {
+			pd = new ProgressDialog(Main.this);
+			pd.setTitle("Connecting");
+			pd.setMessage("Getting ready...");
+			pd.show();
+			super.onPreExecute();
+		}
+
 	}
 
 	private void paraRefresco() {
@@ -115,12 +195,39 @@ public class Main extends ListActivity {
 		}
 	};
 
+	private class ScanResultComparator implements Comparator<ScanResult>{
+
+		@Override
+		public int compare(ScanResult r1, ScanResult r2) {
+			String r1calc = Keygen.calc(r1);
+			String r2calc = Keygen.calc(r2);
+
+			boolean r1av = !r1calc.equals(Keygen.INCOMPATIBLE);
+			boolean r2av = !r2calc.equals(Keygen.INCOMPATIBLE);
+
+			if(r1av && !r2av) return -1;
+			else if(!r1av && r2av) return +1;
+			else {
+				int rank1 = r1.level;
+				int rank2 = r2.level;
+				if (rank1 > rank2){
+					return -1;
+				}else if (rank1 < rank2){
+					return +1;
+				}else{
+					return 0;
+				}
+			}
+		}
+	}
+
 	private void refresca() {
 		WifiManager wifiMgr = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		wifiMgr.startScan();
 		List<ScanResult> tmpresults = wifiMgr.getScanResults();
 		if(tmpresults == null) tmpresults = new ArrayList<ScanResult>();
 		if(manualReload) {
+			Collections.sort(tmpresults, new ScanResultComparator());
 			results = tmpresults;
 			manualReload = false;
 		} else {
@@ -181,14 +288,15 @@ public class Main extends ListActivity {
 			getBssid(v).setText(item.BSSID);
 			getKey(v).setText(key);
 			getCapabilities(v).setText(item.capabilities);
-			getVal(v).setProgress(calcProgress(item.level));
+			getVal(v).setProgress(calcProgress(v, item.level));
 			return v;
 		}
 
-		private int calcProgress(int level) {
-			int progress = 100 + level;
+		private int calcProgress(View v, int level) {
+			int max = getVal(v).getMax();
+			int progress = max + level;
 			if(progress < 0) progress = 0;
-			if(progress > 100) progress = 100;
+			if(progress > max) progress = max;
 			return progress;
 		}
 
