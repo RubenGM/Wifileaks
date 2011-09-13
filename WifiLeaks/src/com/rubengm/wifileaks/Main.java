@@ -8,11 +8,13 @@ import java.util.List;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.Menu;
@@ -47,20 +49,22 @@ public class Main extends ListActivity {
 		if(clave.equals(Keygen.INCOMPATIBLE)) {
 			//TODO: ÀHacer algo?
 		} else if(clave.equals(Keygen.OPEN)) {
-			conecta(results.get(position));
+			startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
 		} else {
 			ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 			cm.setText(clave);
 			Toast.makeText(Main.this, "Clave copiada en el portapapeles", Toast.LENGTH_SHORT).show();
-			conecta(results.get(position));
+			startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
 		}
 		super.onListItemClick(l, v, position, id);
 	}
 
+	@SuppressWarnings("unused")
 	private void conecta(ScanResult r) {
 		new Connect().execute(r);
 	}
 
+	//TODO: Encontrar la manera de que esto funcione
 	private class Connect extends AsyncTask<ScanResult, Void, Void> {
 		ProgressDialog pd;
 		@Override
