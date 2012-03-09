@@ -1,17 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:orientation="vertical" android:background="@drawable/background_row" android:layout_height="wrap_content" android:id="@+id/linearRow">
-	<TextView android:layout_height="wrap_content" android:text="@+id/TextView01"
-		android:textStyle="bold" android:layout_width="wrap_content"
-		android:id="@+id/tvSsid" style="@style/textStyle" android:textSize="16dip"></TextView>
-	<LinearLayout android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/linearLayout1">
-		<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" style="@style/textStyle" android:textSize="10dip" android:text="@+id/TextView02" android:id="@+id/tvBssid" android:textStyle="bold"></TextView>
-		<TextView android:layout_height="wrap_content" android:layout_width="wrap_content" style="@style/textStyle" android:textSize="10dip" android:text="@+id/TextView02" android:id="@+id/tvCapabilities" android:textStyle="bold" android:layout_weight="1" android:layout_gravity="right" android:gravity="right"></TextView>
-	</LinearLayout>
-	<TextView style="@style/textStyle" android:text="@+id/TextView03" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:id="@+id/tvKey" android:textSize="15dip"></TextView>
-	<ProgressBar android:progress="1"
-		style="?android:attr/progressBarStyleHorizontal"
-		android:id="@+id/val"
-		android:layout_width="match_parent" android:layout_marginTop="2dip" android:max="100" android:layout_height="8dip"></ProgressBar>
+    android:id="@+id/linearRow"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/background_row"
+    android:orientation="vertical" >
+    <TextView
+        android:id="@+id/tvSsid"
+        style="@style/textStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@+id/TextView01"
+        android:textSize="16dip"
+        android:textStyle="bold" >
+    </TextView>
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <TextView
+            android:id="@+id/tvBssid"
+            style="@style/textStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@+id/TextView02"
+            android:textSize="10dip"
+            android:textStyle="bold" >
+        </TextView>
+        <TextView
+            android:id="@+id/tvCapabilities"
+            style="@style/textStyle"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="@+id/TextView02"
+            android:textSize="10dip"
+            android:textStyle="bold" >
+        </TextView>
+    </LinearLayout>
+    <TextView
+        android:id="@+id/tvKey"
+        style="@style/textStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@+id/TextView03"
+        android:textSize="15dip" >
+    </TextView>
+    <ProgressBar
+        android:id="@+id/val"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dip"
+        android:layout_marginTop="2dip"
+        android:max="100"
+        android:progress="1" >
+    </ProgressBar>
 </LinearLayout>

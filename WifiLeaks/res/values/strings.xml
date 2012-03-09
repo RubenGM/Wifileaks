@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">WifiLeaks</string>
-    <string name="conectando">Connecting...</string>
+    <string name="conectando">Connecting…</string>
     <string name="error">Error connecting.</string>
+    <string name="reload">Reload</string>
 </resources>

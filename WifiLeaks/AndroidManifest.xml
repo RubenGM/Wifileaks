@@ -5,7 +5,8 @@
     android:versionName="1.5" >
     <application
         android:icon="@drawable/icon"
-        android:label="@string/app_name" >
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Sherlock.Light" >
         <activity
             android:name=".Main"
             android:label="@string/app_name" >
@@ -18,8 +19,6 @@
     <uses-sdk
         android:minSdkVersion="4"
         android:targetSdkVersion="15" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" >
-    </uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" >
-    </uses-permission>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 </manifest>

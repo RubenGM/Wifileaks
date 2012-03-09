@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -26,9 +25,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockListActivity;
 import com.farproc.wifi.connecter.Wifi;
 
-public class Main extends ListActivity {
+public class Main extends SherlockListActivity {
 	public static final String TAG = "Wifileaks";
 	List<ScanResult> results = new ArrayList<ScanResult>();
 	WifiAdapter wa = new WifiAdapter();
@@ -149,14 +149,13 @@ public class Main extends ListActivity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, 0, 0, "Refrescar");
+	public boolean onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu) {
+		menu.add(0, 0, 0, getString(R.string.reload)).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		return super.onCreateOptionsMenu(menu);
 	}
 
-
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
 		switch(item.getItemId()) {
 		case 0:
 			refresca();
