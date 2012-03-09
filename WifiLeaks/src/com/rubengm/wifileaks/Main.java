@@ -10,12 +10,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.ScanResult;
-import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,7 +26,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.farproc.wifi.connecter.Wifi;
+
 public class Main extends ListActivity {
+	public static final String TAG = "Wifileaks";
 	List<ScanResult> results = new ArrayList<ScanResult>();
 	WifiAdapter wa = new WifiAdapter();
 	Refrescame refrescame;
@@ -47,69 +48,42 @@ public class Main extends ListActivity {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		String clave = Keygen.calc(wa.getItem(position));
 		if(clave.equals(Keygen.INCOMPATIBLE)) {
-			//TODO: ÀHacer algo?
+			//TODO: Hacer algo?
 		} else if(clave.equals(Keygen.OPEN)) {
 			startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
 		} else {
-			ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-			cm.setText(clave);
-			Toast.makeText(Main.this, "Clave copiada en el portapapeles", Toast.LENGTH_SHORT).show();
-			startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+			conecta(results.get(position));
 		}
 		super.onListItemClick(l, v, position, id);
 	}
 
-	@SuppressWarnings("unused")
 	private void conecta(ScanResult r) {
 		new Connect().execute(r);
 	}
 
-	//TODO: Encontrar la manera de que esto funcione
-	private class Connect extends AsyncTask<ScanResult, Void, Void> {
+	private class Connect extends AsyncTask<ScanResult, Void, Boolean> {
 		ProgressDialog pd;
 		@Override
-		protected Void doInBackground(ScanResult... params) {
+		protected Boolean doInBackground(ScanResult... params) {
 			ScanResult r = params[0];
 
 			setPdMessage("Reading wifi config");
 
 			WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-			WifiConfiguration wc = new WifiConfiguration();
-			wc.SSID = "\"" + r.SSID + "\"";
-
-			if(r.capabilities.contains("WPA")) {
-				wc.preSharedKey = "\"" + Keygen.calc(r) + "\"";
-				wc.status = WifiConfiguration.Status.ENABLED;
-				wc.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-				wc.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-				wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-				wc.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-				wc.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-				wc.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-			} else if(r.capabilities.contains("WEP")) {
-				//Falta hacer WEP
-			} else { //Red abierta
-				//Falta comprobar
-				wc.status = WifiConfiguration.Status.ENABLED;
-			}
-			// connect to and enable the connection
-			setPdMessage("Adding network");
-			int netId = wifiManager.addNetwork(wc);
-			setPdMessage("Network added with ID: " + netId);
-			wifiManager.enableNetwork(netId, true);
-			wifiManager.setWifiEnabled(true);
-			try {
-				Thread.sleep(750);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			return null;
+		    wifiManager.setWifiEnabled(true);
+		    
+		    return Wifi.connectToNewNetwork(getApplicationContext(), wifiManager, r, Keygen.calc(r), 10);
 		}
 
 		@Override
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(Boolean result) {
 			if(pd != null) {
 				pd.dismiss();
+			}
+			if(result) {
+				Toast.makeText(getApplicationContext(), getString(R.string.conectando), Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(getApplicationContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
 			}
 			super.onPostExecute(result);
 		}
@@ -250,7 +224,7 @@ public class Main extends ListActivity {
 		((WifiAdapter)getListAdapter()).notifyDataSetChanged();
 		if(results.size() == 0) {
 			if(System.currentTimeMillis() - timeLastNag > 10000) {
-				Toast.makeText(Main.this, "Sin resultados. ÀTienes la wifi activa?", Toast.LENGTH_LONG).show();
+				Toast.makeText(Main.this, "Sin resultados. ï¿½Tienes la wifi activa?", Toast.LENGTH_LONG).show();
 				timeLastNag = System.currentTimeMillis();
 			}
 		} 
